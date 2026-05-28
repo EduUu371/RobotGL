@@ -1,0 +1,30 @@
+{
+  "cartesiano": {
+    "name": "Robo Cartesiano",
+    "workspace": {
+      "x": [-4.0, 4.0],
+      "y": [-3.0, 3.0],
+      "z": [0.0, 4.0]
+    },
+    "max_speed": 2.5,
+    "joints": [
+      { "name": "J1 eixo X", "type": "linear", "color": [0.12, 0.55, 1.0] },
+      { "name": "J2 eixo Y", "type": "linear", "color": [0.95, 0.85, 0.10] },
+      { "name": "J3 eixo Z", "type": "linear", "color": [0.10, 0.85, 0.45] }
+    ]
+  },
+  "cilindrico": {
+    "name": "Robo Cilindrico",
+    "workspace": {
+      "theta_deg": [-170.0, 170.0],
+      "radius": [0.75, 4.25],
+      "z": [0.0, 4.0]
+    },
+    "max_speed": 2.0,
+    "joints": [
+      { "name": "J1 base", "type": "rotacional", "color": [1.0, 0.25, 0.10] },
+      { "name": "J2 raio", "type": "linear", "color": [0.10, 0.60, 1.0] },
+      { "name": "J3 altura", "type": "linear", "color": [0.15, 0.90, 0.35] }
+    ]
+  }
+}

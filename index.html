@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conversor de Cinematica Robotica</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --line: #d8dee6;
+      --text: #18202a;
+      --muted: #667085;
+      --accent: #1f7a5a;
+      --accent-strong: #176046;
+      --accent-soft: #e7f5ef;
+      --bad: #b42318;
+      --good: #087443;
+      --surface: #f9fbfc;
+      --code: #111827;
+      --shadow: 0 12px 28px rgba(20, 35, 55, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.4;
+    }
+
+    header {
+      background: #18352e;
+      color: #fff;
+      padding: 22px 24px;
+      border-bottom: 4px solid #efb33d;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.45rem, 3vw, 2.1rem);
+      letter-spacing: 0;
+    }
+
+    header p {
+      margin: 0;
+      color: #d9e8e2;
+      max-width: 920px;
+    }
+
+    main {
+      width: min(1160px, calc(100% - 32px));
+      margin: 22px auto 36px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      padding: 16px 18px 0;
+    }
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 1.08rem;
+      letter-spacing: 0;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .mode-row,
+    .grid,
+    .output-grid,
+    .formula-grid {
+      display: grid;
+      gap: 12px;
+      padding: 16px 18px 18px;
+    }
+
+    .mode-row {
+      grid-template-columns: 220px 1fr;
+      align-items: end;
+    }
+
+    .grid {
+      grid-template-columns: repeat(3, minmax(140px, 1fr));
+    }
+
+    .output-grid {
+      grid-template-columns: repeat(3, minmax(140px, 1fr));
+    }
+
+    .formula-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #344054;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid #c8d3df;
+      border-radius: 6px;
+      padding: 9px 10px;
+      color: var(--text);
+      background: #fff;
+      font-size: 0.96rem;
+    }
+
+    input:focus,
+    select:focus {
+      outline: 3px solid #cce7dc;
+      border-color: var(--accent);
+    }
+
+    .segmented {
+      display: inline-grid;
+      grid-template-columns: repeat(2, minmax(112px, 1fr));
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #eef3f2;
+      width: min(100%, 300px);
+    }
+
+    .segmented button {
+      min-height: 36px;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: #314036;
+      background: transparent;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .segmented button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0 18px 18px;
+    }
+
+    .actions button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 6px;
+      padding: 9px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .actions button.secondary {
+      background: #e9eef4;
+      color: #263442;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--surface);
+      min-height: 88px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 1.18rem;
+      word-break: break-word;
+    }
+
+    .status {
+      margin: 0 18px 18px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--good);
+      font-weight: 700;
+    }
+
+    .status.error {
+      background: #fef3f2;
+      color: var(--bad);
+    }
+
+    pre {
+      min-height: 138px;
+      margin: 0;
+      overflow: auto;
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--code);
+      color: #edf2f7;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 860px) {
+      .mode-row,
+      .grid,
+      .output-grid,
+      .formula-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      main {
+        width: min(100% - 20px, 1160px);
+      }
+
+      header {
+        padding: 18px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Conversor de Cinematica Robotica</h1>
+    <p>Converta entre coordenadas cartesianas do efetuador e valores das juntas para robos cartesiano e cilindrico.</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Modelo e sentido da conversao</h2>
+        <p class="hint">A validacao usa os mesmos limites do simulador OpenGL.</p>
+      </div>
+      <div class="mode-row">
+        <label>Robo
+          <select id="robotType">
+            <option value="cartesiano">Cartesiano</option>
+            <option value="cilindrico">Cilindrico</option>
+          </select>
+        </label>
+        <div>
+          <div class="segmented" aria-label="Sentido da conversao">
+            <button id="inverseBtn" type="button" class="active">Inversa</button>
+            <button id="forwardBtn" type="button">Direta</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2 id="inputTitle">Entrada: ponto do efetuador</h2>
+        <p class="hint" id="inputHint">Informe x, y e z para obter as juntas equivalentes.</p>
+      </div>
+      <div class="grid" id="inputs"></div>
+      <div class="actions">
+        <button id="resetBtn" type="button" class="secondary">Restaurar exemplo</button>
+        <button id="copyBtn" type="button">Copiar resultado</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Resultado</h2>
+        <p class="hint" id="resultHint">Valores calculados pela conversao selecionada.</p>
+      </div>
+      <div class="output-grid" id="outputs"></div>
+      <p class="status" id="status">Pronto.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Formulas usadas</h2>
+        <p class="hint">Resumo para conferir os calculos manualmente.</p>
+      </div>
+      <div class="formula-grid">
+        <pre id="formulaText"></pre>
+        <pre id="limitText"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const limits = {
+      cartesiano: {
+        name: "Robo Cartesiano",
+        workspace: {
+          x: [-4.0, 4.0],
+          y: [-3.0, 3.0],
+          z: [0.0, 4.0]
+        }
+      },
+      cilindrico: {
+        name: "Robo Cilindrico",
+        workspace: {
+          theta_deg: [-170.0, 170.0],
+          radius: [0.75, 4.25],
+          z: [0.0, 4.0]
+        }
+      }
+    };
+
+    const examples = {
+      cartesiano: {
+        inverse: { x: 2.2, y: 1.4, z: 1.8 },
+        forward: { j1: 2.2, j2: 1.4, j3: 1.8 }
+      },
+      cilindrico: {
+        inverse: { x: 2.6, y: 1.4, z: 1.8 },
+        forward: { theta: 28.3, radius: 2.95, z: 1.8 }
+      }
+    };
+
+    const state = {
+      mode: "inverse"
+    };
+
+    const number = new Intl.NumberFormat("pt-BR", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 4
+    });
+
+    function parseValue(id) {
+      const value = Number(document.getElementById(id).value);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function fmt(value) {
+      return number.format(value);
+    }
+
+    function round(value) {
+      return Math.abs(value) < 0.0000001 ? 0 : value;
+    }
+
+    function inside(value, range) {
+      return value >= range[0] && value <= range[1];
+    }
+
+    function setStatus(message, isError = false) {
+      const el = document.getElementById("status");
+      el.textContent = message;
+      el.classList.toggle("error", isError);
+    }
+
+    function robotType() {
+      return document.getElementById("robotType").value;
+    }
+
+    function activeExample() {
+      return examples[robotType()][state.mode];
+    }
+
+    function inputFields(type) {
+      if (state.mode === "inverse") {
+        return [
+          ["x", "X"],
+          ["y", "Y"],
+          ["z", "Z"]
+        ];
+      }
+      if (type === "cartesiano") {
+        return [
+          ["j1", "J1 eixo X"],
+          ["j2", "J2 eixo Y"],
+          ["j3", "J3 eixo Z"]
+        ];
+      }
+      return [
+        ["theta", "Theta (graus)"],
+        ["radius", "Raio"],
+        ["z", "Z"]
+      ];
+    }
+
+    function outputLabels(type) {
+      if (state.mode === "inverse") {
+        return type === "cartesiano"
+          ? [["j1", "J1 eixo X"], ["j2", "J2 eixo Y"], ["j3", "J3 eixo Z"]]
+          : [["theta", "Theta"], ["radius", "Raio"], ["z", "Z"]];
+      }
+      return [["x", "X"], ["y", "Y"], ["z", "Z"]];
+    }
+
+    function renderInputs() {
+      const type = robotType();
+      const example = activeExample();
+      document.getElementById("inputTitle").textContent = state.mode === "inverse"
+        ? "Entrada: ponto do efetuador"
+        : "Entrada: valores das juntas";
+      document.getElementById("inputHint").textContent = state.mode === "inverse"
+        ? "Informe x, y e z para obter as juntas equivalentes."
+        : "Informe as juntas para obter x, y e z do efetuador.";
+      document.getElementById("resultHint").textContent = state.mode === "inverse"
+        ? "Saida em valores de junta."
+        : "Saida em coordenadas cartesianas.";
+
+      document.getElementById("inputs").innerHTML = inputFields(type).map(([id, label]) => `
+        <label>${label}
+          <input id="${id}" type="number" step="0.01" value="${example[id]}">
+        </label>
+      `).join("");
+
+      document.querySelectorAll("#inputs input").forEach((input) => input.addEventListener("input", render));
+    }
+
+    function inverseKinematics(type) {
+      const x = parseValue("x");
+      const y = parseValue("y");
+      const z = parseValue("z");
+      const workspace = limits[type].workspace;
+
+      if (type === "cartesiano") {
+        const errors = [];
+        if (!inside(x, workspace.x)) errors.push(`x=${fmt(x)} fora de [${workspace.x.join(", ")}]`);
+        if (!inside(y, workspace.y)) errors.push(`y=${fmt(y)} fora de [${workspace.y.join(", ")}]`);
+        if (!inside(z, workspace.z)) errors.push(`z=${fmt(z)} fora de [${workspace.z.join(", ")}]`);
+        return {
+          values: { j1: x, j2: y, j3: z },
+          errors,
+          formula: [
+            "Cinematica inversa - cartesiano",
+            "J1 = x",
+            "J2 = y",
+            "J3 = z"
+          ].join("\n")
+        };
+      }
+
+      const radius = Math.hypot(x, y);
+      const theta = Math.atan2(y, x) * 180 / Math.PI;
+      const errors = [];
+      if (!inside(theta, workspace.theta_deg)) errors.push(`theta=${fmt(theta)} fora de [${workspace.theta_deg.join(", ")}]`);
+      if (!inside(radius, workspace.radius)) errors.push(`raio=${fmt(radius)} fora de [${workspace.radius.join(", ")}]`);
+      if (!inside(z, workspace.z)) errors.push(`z=${fmt(z)} fora de [${workspace.z.join(", ")}]`);
+      return {
+        values: { theta, radius, z },
+        errors,
+        formula: [
+          "Cinematica inversa - cilindrico",
+          "theta = atan2(y, x)",
+          "raio = sqrt(x^2 + y^2)",
+          "J3 = z"
+        ].join("\n")
+      };
+    }
+
+    function forwardKinematics(type) {
+      const workspace = limits[type].workspace;
+      if (type === "cartesiano") {
+        const j1 = parseValue("j1");
+        const j2 = parseValue("j2");
+        const j3 = parseValue("j3");
+        const errors = [];
+        if (!inside(j1, workspace.x)) errors.push(`J1=${fmt(j1)} fora de [${workspace.x.join(", ")}]`);
+        if (!inside(j2, workspace.y)) errors.push(`J2=${fmt(j2)} fora de [${workspace.y.join(", ")}]`);
+        if (!inside(j3, workspace.z)) errors.push(`J3=${fmt(j3)} fora de [${workspace.z.join(", ")}]`);
+        return {
+          values: { x: j1, y: j2, z: j3 },
+          errors,
+          formula: [
+            "Cinematica direta - cartesiano",
+            "x = J1",
+            "y = J2",
+            "z = J3"
+          ].join("\n")
+        };
+      }
+
+      const theta = parseValue("theta");
+      const radius = parseValue("radius");
+      const z = parseValue("z");
+      const radians = theta * Math.PI / 180;
+      const x = radius * Math.cos(radians);
+      const y = radius * Math.sin(radians);
+      const errors = [];
+      if (!inside(theta, workspace.theta_deg)) errors.push(`theta=${fmt(theta)} fora de [${workspace.theta_deg.join(", ")}]`);
+      if (!inside(radius, workspace.radius)) errors.push(`raio=${fmt(radius)} fora de [${workspace.radius.join(", ")}]`);
+      if (!inside(z, workspace.z)) errors.push(`z=${fmt(z)} fora de [${workspace.z.join(", ")}]`);
+      return {
+        values: { x, y, z },
+        errors,
+        formula: [
+          "Cinematica direta - cilindrico",
+          "x = raio * cos(theta)",
+          "y = raio * sin(theta)",
+          "z = J3"
+        ].join("\n")
+      };
+    }
+
+    function limitSummary(type) {
+      const workspace = limits[type].workspace;
+      if (type === "cartesiano") {
+        return [
+          "Limites - cartesiano",
+          `x: [${workspace.x.join(", ")}]`,
+          `y: [${workspace.y.join(", ")}]`,
+          `z: [${workspace.z.join(", ")}]`
+        ].join("\n");
+      }
+      return [
+        "Limites - cilindrico",
+        `theta: [${workspace.theta_deg.join(", ")}] graus`,
+        `raio: [${workspace.radius.join(", ")}]`,
+        `z: [${workspace.z.join(", ")}]`
+      ].join("\n");
+    }
+
+    function renderOutputs(result, type) {
+      document.getElementById("outputs").innerHTML = outputLabels(type).map(([id, label]) => `
+        <div class="metric">
+          <span>${label}</span>
+          <strong>${fmt(round(result.values[id]))}</strong>
+        </div>
+      `).join("");
+    }
+
+    function render() {
+      const type = robotType();
+      const result = state.mode === "inverse" ? inverseKinematics(type) : forwardKinematics(type);
+      renderOutputs(result, type);
+      document.getElementById("formulaText").textContent = result.formula;
+      document.getElementById("limitText").textContent = limitSummary(type);
+      setStatus(result.errors.length ? result.errors.join(" | ") : "Conversao valida dentro do dominio.", result.errors.length > 0);
+    }
+
+    function resetExample() {
+      renderInputs();
+      render();
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      document.getElementById("inverseBtn").classList.toggle("active", mode === "inverse");
+      document.getElementById("forwardBtn").classList.toggle("active", mode === "forward");
+      resetExample();
+    }
+
+    function resultText() {
+      const type = robotType();
+      const result = state.mode === "inverse" ? inverseKinematics(type) : forwardKinematics(type);
+      return [
+        `${limits[type].name} - ${state.mode === "inverse" ? "cinematica inversa" : "cinematica direta"}`,
+        ...outputLabels(type).map(([id, label]) => `${label}: ${fmt(round(result.values[id]))}`),
+        result.errors.length ? `Status: ${result.errors.join(" | ")}` : "Status: valido"
+      ].join("\n");
+    }
+
+    document.getElementById("robotType").addEventListener("change", resetExample);
+    document.getElementById("inverseBtn").addEventListener("click", () => setMode("inverse"));
+    document.getElementById("forwardBtn").addEventListener("click", () => setMode("forward"));
+    document.getElementById("resetBtn").addEventListener("click", resetExample);
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(resultText());
+      } catch {
+        const area = document.createElement("textarea");
+        area.value = resultText();
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+    });
+
+    resetExample();
+  </script>
+</body>
+</html>
