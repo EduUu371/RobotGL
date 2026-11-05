@@ -1,6 +1,8 @@
 # Documentacao do interpretador de cinematica
 
-O aplicativo usa um pequeno DSL inspirado em comandos industriais como `MoveJ`, `MoveL` e `MoveC`. O codigo e editado em uma janela separada da renderizacao 3D; quando o usuario clica em `Compilar`, cada ponto solicitado passa pela cinematica inversa do robo selecionado.
+Trabalho da disciplina de Robotica da Pontificia Universidade Catolica de Goias (PUC Goias), primeiro semestre de 2026.
+
+O aplicativo usa um pequeno DSL inspirado em comandos industriais como `MoveJ`, `MoveL` e `MoveC`. Quando o usuario compila o codigo, cada ponto solicitado passa pela cinematica inversa do robo selecionado.
 
 ## Como executar
 
@@ -30,21 +32,22 @@ Os modelos foram desenhados para separar corpo e dominio:
 
 O menu superior permite trocar o robo e ligar/desligar extras:
 
-- `Cartesiano` / `Cilindrico`: troca o modelo 3D e o modelo de cinematica usado pelo interpretador.
 - `Dominio`: mostra ou esconde o volume de trabalho transparente.
 - `Rastro`: mostra ou esconde o historico visual do efetuador.
-- `GPU`: usa malhas mais detalhadas. Desligado, o simulador usa um fallback mais leve, com menos vertices, para computadores fracos.
+- `Render: GPU/CPU (auto/fixo)`: o perfil de renderizacao e escolhido automaticamente pelo nome do renderer OpenGL (GPU real = malhas detalhadas e antialiasing; software = malhas leves, dominio so com arestas, 30 fps). Clique ou use a tecla `G` para alternar Auto/GPU/CPU. Tambem existem `--gpu`, `--cpu` e `ROBOTGL_RENDER`.
+
+## Demonstracao da conversao
+
+Antes da simulacao, cada comando passa por uma demonstracao animada: codigo, tokens, comando estruturado, alvo XYZ, cinematica inversa (formula, substituicao, resultado e limite de cada junta), juntas e verificacao pela cinematica direta. `Espaco` avanca, `P` pausa, `S` vai para a simulacao e `R` reinicia. `python main.py --terminal` mostra o mesmo relatorio em texto.
 
 ## Edicao e compilacao
 
-A caixa de texto do codigo nao e desenhada dentro da janela OpenGL. Ela fica em uma janela nativa separada chamada `Editor de codigo do robo`.
+O editor fica dentro da janela, no painel `PROGRAMA`. Os botoes `Ex. 1`, `Ex. 2` e `Ex. 3` carregam exemplos e `Editar` libera a edicao das linhas mostradas.
 
-O fluxo esperado e:
-
-- Editar o programa na caixa de texto.
-- Clicar em `Compilar`.
-- Conferir o status no editor e na barra superior da visualizacao 3D.
-- A animacao 3D so muda depois de uma compilacao bem-sucedida.
+- Editando, aparece o botao `Compilar` (verde) abaixo da caixa de codigo. Atalhos: `Ctrl+Enter`/`F5` compilam, `Esc` cancela.
+- Com erro, o botao fica vermelho e o rodape do painel mostra o comando culpado e o motivo.
+- Compilou sem erro: a edicao fecha e a demonstracao recomeca.
+- O robo (cartesiano ou cilindrico) e definido pela primeira linha, `ROBO ...;`.
 
 ## Cores das juntas
 
@@ -107,4 +110,4 @@ Movimento circular no plano XY. O ponto atual e usado como inicio do arco, `(cx,
 
 ## Exemplo de teste da animacao
 
-O arquivo `exemplo_teste_animacao.robot` contem um programa pronto para colar no editor de codigo. Ele mistura `MoveJ`, `MoveL` e `MoveC` para verificar se o robo se move, se o rastro ciano e desenhado e se o dominio transparente aparece corretamente.
+O botao `Ex. 3` carrega um programa pronto que mistura `MoveJ`, `MoveL` e `MoveC` para verificar se o robo se move, se o rastro ciano e desenhado e se o dominio transparente aparece corretamente.
